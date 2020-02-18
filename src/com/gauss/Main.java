@@ -1,11 +1,14 @@
 package com.gauss;
 
 import java.io.*;
+import java.util.Date;
+import java.util.Random;
 
 public class Main {
 
     private static double EPSILON = 0.000000001d;
     private static int swaps = 0;
+    private static Random random = new Random(new Date().getTime());
 
     private static void printMatrix(double[][] a) {
         for (double[] row : a) {
@@ -107,7 +110,7 @@ public class Main {
         double[][] matrix = new double[size][size + 1];
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size + 1; j++) {
-                matrix[i][j] = Math.random() * 100;
+                matrix[i][j] = random.nextDouble() * 100;
             }
         }
         return matrix;
@@ -126,7 +129,7 @@ public class Main {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         int size = 0;
-        System.out.println("Your matrix size (N x N):");
+        System.out.println("Enter your matrix size (N x N):");
         while (size <= 0) {
             try {
                 size = Integer.parseInt(reader.readLine());
