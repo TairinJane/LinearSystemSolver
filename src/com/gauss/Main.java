@@ -1,11 +1,11 @@
 package com.gauss;
 
 import java.io.*;
-import java.util.Random;
 
 public class Main {
 
     private static double EPSILON = 0.000000001d;
+    private static int swaps = 0;
 
     private static void printMatrix(double[][] a) {
         for (double[] row : a) {
@@ -26,6 +26,7 @@ public class Main {
                 for (int j = i + 1; j < a.length; j++) {
                     if (a[j][i] != 0) {
                         swapRows(a, i, j);
+                        swaps++;
                         break;
                     }
                 }
@@ -78,10 +79,10 @@ public class Main {
         for (int i = 0; i < a.length; i++) {
             det *= a[i][i];
         }
-        return det;
+        return det * (swaps % 2 == 0 ? 1 : -1);
     }
 
-    private static int rank(double[][] a) {
+    private static int rankTriangular(double[][] a) {
         int rank = 0;
         for (double[] row : a) {
             boolean zero = true;
