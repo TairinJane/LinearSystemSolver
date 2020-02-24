@@ -1,7 +1,10 @@
 package com.gauss;
 
 import java.io.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 public class Main {
@@ -9,6 +12,7 @@ public class Main {
     private static double EPSILON = 0.000000001d;
     private static int swaps = 0;
     private static Random random = new Random(new Date().getTime());
+    private static DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
     private static void printMatrix(double[][] a) {
         for (double[] row : a) {
@@ -20,7 +24,7 @@ public class Main {
         System.out.println();
     }
 
-    private static double[][] forwardGauss(double[][] a) {
+    private static void forwardGauss(double[][] a) {
         for (int i = 0; i < a.length - 1; i++) {
             System.out.println("Step " + (i + 1) + ":");
             double main = a[i][i];
@@ -44,7 +48,6 @@ public class Main {
             }
             printMatrix(a);
         }
-        return a;
     }
 
     private static double[] solve(double[][] a) {
@@ -59,22 +62,28 @@ public class Main {
             for (int j = 0; j < a.length; j++) {
                 a[j][i] *= solution[i];
             }
-            System.out.println(String.format("x%d = %10.5f", (i + 1), solution[i]));
+            System.out.println(String.format("x%d = %-20s", (i + 1), df.format(solution[i])));
         }
         return solution;
     }
 
     private static boolean checkSolution(double[][] a, double[] solution) {
+        double diff;
+        boolean correct = true;
         System.out.println("Checking...");
+        System.out.println("Calculation errors:");
         for (int i = 0; i < a.length; i++) {
             double rowSum = 0;
             for (int j = 0; j < a.length; j++) {
                 rowSum += a[i][j] * solution[j];
             }
-            System.out.println(String.format("Row %d: %10.5f = %10.5f", (i + 1), rowSum, a[i][a[i].length - 1]));
-            if (Math.abs(rowSum - a[i][a[i].length - 1]) > EPSILON) return false;
+            diff = Math.abs(a[i][a[i].length - 1] - rowSum);
+//            System.out.println(String.format("Row %d: %-12.7f = %-12.7f", (i + 1), rowSum, a[i][a[i].length - 1]));
+            System.out.println(String.format("Row %d: %-20s", (i + 1), df.format(diff)));
+            if (diff > EPSILON) correct = false;
         }
-        return true;
+        System.out.println();
+        return correct;
     }
 
     private static double determinant(double[][] a) {
@@ -126,6 +135,7 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        df.setMaximumFractionDigits(340);
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         int size = 0;
@@ -133,10 +143,10 @@ public class Main {
         while (size <= 0) {
             try {
                 size = Integer.parseInt(reader.readLine());
-                if (size <= 0) throw new NumberFormatException();
+                if (size <= 0 || size >= 1000) throw new NumberFormatException();
                 System.out.println("Size: " + size + " x " + size);
             } catch (Exception e) {
-                System.out.println("Enter correct positive integer number, please.");
+                System.out.println("Enter correct positive integer number less than 1000, please.");
             }
         }
         System.out.println();
@@ -231,11 +241,11 @@ public class Main {
         forwardGauss(matrix);
 
         double det = determinant(matrix);
-        System.out.println(String.format("Matrix determinant: %10.5f", det));
+        System.out.println(String.format("Matrix determinant: %s", df.format(det)));
         System.out.println();
 
         if (det == 0) {
-            System.out.println("System does not have the solution");
+            System.out.println("System does not have the unique solution");
         } else {
             double[] solution = solve(matrix);
             System.out.println();
