@@ -15,9 +15,10 @@ public class Main {
     private static DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
     private static void printMatrix(double[][] a) {
-        for (double[] row : a) {
-            for (double c : row) {
-                System.out.print(String.format("%12.5f", c));
+        for (int i = 0; i < a.length; i++) {
+            for (int j = 0; j < a[i].length; j++) {
+                if (i > j && a[i][j] == 0) System.out.print(String.format("%12s", " "));
+                else System.out.print(String.format("%12.5f", a[i][j]));
             }
             System.out.println();
         }
@@ -143,10 +144,10 @@ public class Main {
         while (size <= 0) {
             try {
                 size = Integer.parseInt(reader.readLine());
-                if (size <= 0 || size >= 1000) throw new NumberFormatException();
+                if (size <= 0 || size > 20) throw new NumberFormatException();
                 System.out.println("Size: " + size + " x " + size);
             } catch (Exception e) {
-                System.out.println("Enter correct positive integer number less than 1000, please.");
+                System.out.println("Enter correct positive integer number less or equals 20");
             }
         }
         System.out.println();
