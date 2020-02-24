@@ -11,14 +11,14 @@ public class Main {
 
     private static double EPSILON = 0.000000001d;
     private static int swaps = 0;
-    private static Random random = new Random(new Date().getTime());
+    private static Random randomizer = new Random(new Date().getTime());
     private static DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
     private static void printMatrix(double[][] a) {
         for (int i = 0; i < a.length; i++) {
             for (int j = 0; j < a[i].length; j++) {
-                if (i > j && a[i][j] == 0) System.out.print(String.format("%12s", " "));
-                else System.out.print(String.format("%12.5f", a[i][j]));
+                if (i > j && a[i][j] == 0) System.out.print(String.format("%15s", " "));
+                else System.out.print(String.format("%15.8f", a[i][j]));
             }
             System.out.println();
         }
@@ -31,20 +31,18 @@ public class Main {
             double main = a[i][i];
 
             if (main == 0) {
-                for (int j = i + 1; j < a.length; j++) {
+                for (int j = i + 1; j < a.length; j++)
                     if (a[j][i] != 0) {
                         swapRows(a, i, j);
                         swaps++;
                         break;
                     }
-                }
             }
             for (int j = i + 1; j < a.length; j++) {
                 if (a[j][i] != 0) {
                     double multiplier = a[j][i] / main;
-                    for (int k = 0; k < a[i].length; k++) {
+                    for (int k = 0; k < a[i].length; k++)
                         a[j][k] -= multiplier * a[i][k];
-                    }
                 }
             }
             printMatrix(a);
@@ -56,13 +54,11 @@ public class Main {
         double[] solution = new double[a.length];
         for (int i = a.length - 1; i >= 0; i--) {
             double b = a[i][a[i].length - 1];
-            for (int j = i + 1; j < a.length; j++) {
+            for (int j = i + 1; j < a.length; j++)
                 b -= a[i][j];
-            }
             solution[i] = b / a[i][i];
-            for (int j = 0; j < a.length; j++) {
+            for (int j = 0; j < a.length; j++)
                 a[j][i] *= solution[i];
-            }
             System.out.println(String.format("x%d = %-20s", (i + 1), df.format(solution[i])));
         }
         return solution;
@@ -75,12 +71,10 @@ public class Main {
         System.out.println("Calculation errors:");
         for (int i = 0; i < a.length; i++) {
             double rowSum = 0;
-            for (int j = 0; j < a.length; j++) {
+            for (int j = 0; j < a.length; j++)
                 rowSum += a[i][j] * solution[j];
-            }
             diff = Math.abs(a[i][a[i].length - 1] - rowSum);
-//            System.out.println(String.format("Row %d: %-12.7f = %-12.7f", (i + 1), rowSum, a[i][a[i].length - 1]));
-            System.out.println(String.format("Row %d: %-20s", (i + 1), df.format(diff)));
+            System.out.println(String.format("x%d: %-20s", (i + 1), df.format(diff)));
             if (diff > EPSILON) correct = false;
         }
         System.out.println();
@@ -89,9 +83,8 @@ public class Main {
 
     private static double determinant(double[][] a) {
         double det = 1;
-        for (int i = 0; i < a.length; i++) {
+        for (int i = 0; i < a.length; i++)
             det *= a[i][i];
-        }
         return det * (swaps % 2 == 0 ? 1 : -1);
     }
 
@@ -119,9 +112,8 @@ public class Main {
     private static double[][] randomMatrix(int size) {
         double[][] matrix = new double[size][size + 1];
         for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size + 1; j++) {
-                matrix[i][j] = random.nextDouble() * 100;
-            }
+            for (int j = 0; j < size + 1; j++)
+                matrix[i][j] = randomizer.nextDouble() * 100;
         }
         return matrix;
     }
@@ -129,9 +121,8 @@ public class Main {
     private static double[][] copyMatrix(double[][] matrix) {
         int size = matrix.length;
         double[][] copy = new double[size][size + 1];
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++)
             copy[i] = matrix[i].clone();
-        }
         return copy;
     }
 
@@ -140,17 +131,6 @@ public class Main {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
         int size = 0;
-        System.out.println("Enter your matrix size (N x N):");
-        while (size <= 0) {
-            try {
-                size = Integer.parseInt(reader.readLine());
-                if (size <= 0 || size > 20) throw new NumberFormatException();
-                System.out.println("Size: " + size + " x " + size);
-            } catch (Exception e) {
-                System.out.println("Enter correct positive integer number less or equals 20");
-            }
-        }
-        System.out.println();
 
         System.out.println("Do you want to use console (c) or file (f) for input?");
         boolean useFile = false;
@@ -185,6 +165,9 @@ public class Main {
                     if (file.exists() && file.canRead()) {
                         fileReader = new BufferedReader(new FileReader(file));
                         try {
+                            size = Integer.parseInt(fileReader.readLine().trim());
+                            matrix = new double[size][size + 1];
+                            System.out.println("Matrix size: " + size + " x " + size);
                             for (int i = 0; i < size; i++) {
                                 String[] row = fileReader.readLine().trim().replaceAll("[,]+", ".")
                                         .replaceAll("[ ]+", " ").split(" ");
@@ -204,8 +187,21 @@ public class Main {
             }
 
         } else if (random) {
+            size = randomizer.nextInt(10);
             matrix = randomMatrix(size);
         } else {
+            System.out.println("Enter your matrix size (N x N):");
+            while (size <= 0) {
+                try {
+                    size = Integer.parseInt(reader.readLine());
+                    if (size <= 0 || size > 20) throw new NumberFormatException();
+                    System.out.println("Size: " + size + " x " + size);
+                } catch (Exception e) {
+                    System.out.println("Enter correct positive integer number less or equals 20");
+                }
+            }
+            System.out.println();
+            matrix = new double[size][size + 1];
 
             System.out.println("Enter all matrix coefficients row by row:");
             System.out.print("\t\t");
