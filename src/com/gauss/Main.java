@@ -15,10 +15,9 @@ public class Main {
     private static DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
     private static void printMatrix(double[][] a) {
-        for (int i = 0; i < a.length; i++) {
-            for (int j = 0; j < a[i].length; j++) {
-                if (i > j && a[i][j] == 0) System.out.print(String.format("%15s", " "));
-                else System.out.print(String.format("%15.8f", a[i][j]));
+        for (double[] doubles : a) {
+            for (double c : doubles) {
+                System.out.print(String.format("%15.8f", c));
             }
             System.out.println();
         }
@@ -30,7 +29,7 @@ public class Main {
             System.out.println("Step " + (i + 1) + ":");
             double main = a[i][i];
 
-            if (main == 0) {
+            if (Math.abs(main) < EPSILON) {
                 for (int j = i + 1; j < a.length; j++)
                     if (a[j][i] != 0) {
                         swapRows(a, i, j);
@@ -39,7 +38,7 @@ public class Main {
                     }
             }
             for (int j = i + 1; j < a.length; j++) {
-                if (a[j][i] != 0) {
+                if (Math.abs(a[j][i]) > EPSILON) {
                     double multiplier = a[j][i] / main;
                     for (int k = 0; k < a[i].length; k++)
                         a[j][k] -= multiplier * a[i][k];
@@ -50,7 +49,6 @@ public class Main {
     }
 
     private static double[] solve(double[][] a) {
-        System.out.println("Solution:");
         double[] solution = new double[a.length];
         for (int i = a.length - 1; i >= 0; i--) {
             double b = a[i][a[i].length - 1];
@@ -59,7 +57,6 @@ public class Main {
             solution[i] = b / a[i][i];
             for (int j = 0; j < a.length; j++)
                 a[j][i] *= solution[i];
-            System.out.println(String.format("x%d = %-20s", (i + 1), df.format(solution[i])));
         }
         return solution;
     }
@@ -67,13 +64,11 @@ public class Main {
     private static boolean checkSolution(double[][] a, double[] solution) {
         double diff;
         boolean correct = true;
-        System.out.println("Checking...");
-        System.out.println("Calculation errors:");
         for (int i = 0; i < a.length; i++) {
             double rowSum = 0;
             for (int j = 0; j < a.length; j++)
                 rowSum += a[i][j] * solution[j];
-            diff = Math.abs(a[i][a[i].length - 1] - rowSum);
+            diff = Math.abs(a[i][a.length] - rowSum);
             System.out.println(String.format("x%d: %-20s", (i + 1), df.format(diff)));
             if (diff > EPSILON) correct = false;
         }
@@ -86,21 +81,6 @@ public class Main {
         for (int i = 0; i < a.length; i++)
             det *= a[i][i];
         return det * (swaps % 2 == 0 ? 1 : -1);
-    }
-
-    private static int rankTriangular(double[][] a) {
-        int rank = 0;
-        for (double[] row : a) {
-            boolean zero = true;
-            for (double c : row) {
-                if (c != 0) {
-                    zero = false;
-                    break;
-                }
-            }
-            if (!zero) rank++;
-        }
-        return rank;
     }
 
     private static void swapRows(double[][] a, int i, int j) {
@@ -187,7 +167,7 @@ public class Main {
             }
 
         } else if (random) {
-            size = randomizer.nextInt(10);
+            size = 1 + randomizer.nextInt(6);
             matrix = randomMatrix(size);
         } else {
             System.out.println("Enter your matrix size (N x N):");
@@ -245,8 +225,15 @@ public class Main {
             System.out.println("System does not have the unique solution");
         } else {
             double[] solution = solve(matrix);
+
+            System.out.println("Solution:");
+            for (int i = 0; i < solution.length; i++) {
+                System.out.println(String.format("x%d = %-20s", (i + 1), df.format(solution[i])));
+            }
             System.out.println();
 
+            System.out.println("Checking...");
+            System.out.println("Calculation errors:");
             if (checkSolution(checkMatrix, solution)) System.out.println("Solution is correct :)");
             else System.out.println("Solution is wrong :(");
         }
